@@ -4,6 +4,7 @@ import yaml
 from yaml import Loader
 import datetime
 import matplotlib.pyplot as plt
+from RESTService import cryptoRestAPI
 
 class Plotter:
     
@@ -26,7 +27,6 @@ class Plotter:
 
     def getYAxis(self):
         y = []
-        counter = 0
 
         with open(self.props.get('fileName')) as file:
             reader = csv.reader(file)
@@ -55,17 +55,17 @@ class Plotter:
     
     def generateGraph(self):
 
-        y = self.getYAxis()
-        x = self.getXAxis()
+        crypto = cryptoRestAPI()
+        socials = crypto.getHourlySocials("24","7605")
 
         plt.style.use('seaborn')
         fig, ax = plt.subplots()
-        ax.plot(x,y, c='red')
+        ax.plot(socials.keys(),socials.values(), c='blue')
 
-        plt.title("Toronto Weather", fontsize=24)
+        plt.title("Social Media Activity(Reddit)", fontsize=24)
         plt.xlabel('', fontsize=16)
         fig.autofmt_xdate()        
-        plt.ylabel('Temperature (C)', fontsize=16)
+        plt.ylabel('Posts', fontsize=16)
         plt.tick_params(axis='both', which='major', labelsize=16)
 
         plt.show()        

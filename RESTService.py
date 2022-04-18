@@ -1,12 +1,14 @@
 import requests
 import yaml
 from yaml import Loader
+import json
+from datetime import datetime
 
-class cryptoRestAPI:
+class cryptoRestAPI:    
 
-    def __init__(self, config = 'config.yaml'):
+    def __init__(self):
         #yaml properties
-        configFile = open(config, 'r')
+        configFile = open('config.yaml', 'r')
         props = yaml.load(configFile,Loader=Loader)
         self.api = props.get('api')
         self.headers = self.generateHeaders()
@@ -29,13 +31,17 @@ class cryptoRestAPI:
         
         return endPoints
 
-    def getHourlyPrice(self, count, symbol):
-        hourlyUrl = self.baseUrl + self.endPoints["hourlyPrice"] + "&count="+count + "&symbol="+symbol
+    def getHourlySocials(self, count, id):
+        socialUrl = self.baseUrl + self.endPoints["hourlySocials"] + "?limit="+count + "&coinId="+id
+        socialMediaPosts = {}
 
-        req = requests.get(hourlyUrl,headers=self.headers)
-        print(req)
-    
-    
-
-test = cryptoRestAPI()
-test.getHourlyPrice("24","BTC")
+        try:
+            req = requests.get(socialUrl,headers=self.headers)
+            resp = json.loads(req.text)            
+            for hour in resp["Data"]:
+                dt = datetime.fromtimestamp(hour["time"])
+                t = dt.strftime('%b %d %Y %H:%M')
+                socialMediaPosts[t] =  hour["reddit_comments_per_hour"]
+            return socialMediaPosts    
+        except:
+            pass
